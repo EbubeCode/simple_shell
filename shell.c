@@ -3,10 +3,11 @@
 /**
  * execute - executes a program passed to it
  * @argv: the string of command and parameters
+ * @progname: program name
  *
  * Return: void
  */
-void execute(char **argv)
+void execute(char **argv, char *progname)
 {
 	int status = 0, stat;
 	pid_t child_pid;
@@ -14,9 +15,12 @@ void execute(char **argv)
 	status = access(argv[0], F_OK);
 	if (status == -1)
 	{
-		perror("No such file or directory\n");
+		write(STDOUT_FILENO, progname, 8);
+		write(STDOUT_FILENO, ": No such file or directory\n",
+				30);
 		return;
 	}
+	printf("%d\n", status);
 	child_pid = fork();
 	if (child_pid == -1)
 	{
@@ -34,10 +38,12 @@ void execute(char **argv)
 
 /**
  * main - Entry point of application
+ * @ac: number of commandline args
+ * @arv: array of command line
  *
  * Return: 0 sucess
  */
-int main(void)
+int main(int ac, char *arv[])
 {
 	char *prompt = NULL, *a, **av;
 	size_t n = 0;
@@ -47,16 +53,23 @@ int main(void)
 	do {
 		write(STDOUT_FILENO, "#cisfun$ ", 9);
 		read = getline(&prompt, &n, stdin);
-		a = prompt;
-		while (*a != '\n')
-			a++;
-		*a = '\0';
-		av[0] = prompt;
-		if (read != -1)
-			execute(av);
+		if (read == -1)
+			break;
+		if (prompt != NULL)
+		{
+			a = prompt;
+			while (*a != '\n')
+				a++;
+			*a = '\0';
+			av[0] = prompt;
+			execute(av, arv[0]);
+		}
 		else
 			write(STDOUT_FILENO, "\n", 1);
-		free(prompt);
 		n = 0;
+		free(prompt);
 	} while (1);
+	free(prompt);
+	write(STDOUT_FILENO, "\n", 1);
+	return (0);
 }
