@@ -20,17 +20,15 @@ void execute(char **argv, char *progname)
 				30);
 		return;
 	}
-	printf("%d\n", status);
 	child_pid = fork();
 	if (child_pid == -1)
 	{
-	perror("Error: running command\n");
-	return;
+		perror("Error: running command\n");
+		return;
 	}
 	if (child_pid == 0)
 	{
-		argv[1] = NULL;
-		execve(*argv, argv, NULL);
+		execve(argv[0], argv, NULL);
 	}
 	else
 		wait(&stat);
@@ -61,13 +59,15 @@ int main(int ac, char *arv[])
 			while (*a != '\n')
 				a++;
 			*a = '\0';
-			av[0] = prompt;
-			execute(av, arv[0]);
+			av = split_command(prompt);
+			if (av != NULL)
+				execute(av, arv[0]);
 		}
 		else
 			write(STDOUT_FILENO, "\n", 1);
 		n = 0;
 		free(prompt);
+		free(av);
 	} while (1);
 	free(prompt);
 	write(STDOUT_FILENO, "\n", 1);
