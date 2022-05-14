@@ -8,12 +8,28 @@
  */
 void execute(char **argv)
 {
-	int status = 0;
+	int status = 0, stat;
+	pid_t child_pid;
 
-	status = execve(argv[0], argv, NULL);
+	status = access(argv[0], F_OK);
 	if (status == -1)
-		write(STDOUT_FILENO, "No such file or directory\n",
-				26);
+	{
+		perror("No such file or directory\n");
+		return;
+	}
+	child_pid = fork();
+	if (child_pid == -1)
+	{
+	perror("Error: running command\n");
+	return;
+	}
+	if (child_pid == 0)
+	{
+		argv[1] = NULL;
+		execve(*argv, argv, NULL);
+	}
+	else
+		wait(&stat);
 }
 
 /**
@@ -26,7 +42,7 @@ int main(void)
 	char *prompt = NULL, *a, **av;
 	size_t n = 0;
 	ssize_t read;
-	int i = 0;
+	int i = 0, status;
 
 	do {
 		write(STDOUT_FILENO, "#cisfun$ ", 9);
