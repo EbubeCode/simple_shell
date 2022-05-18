@@ -37,7 +37,10 @@ void execute(char **argv, char *progname)
 		execve(argv[0], argv, NULL);
 	}
 	else
+	{
 		wait(&stat);
+		free(file);
+	}
 }
 
 /**
@@ -81,6 +84,7 @@ int main(__attribute__((unused)) int ac, char *arv[])
 		free(prompt);
 		free(av);
 	} while (1);
+	free(av);
 	free(prompt);
 	if (status != 1)
 		write(STDOUT_FILENO, "\n", 1);
