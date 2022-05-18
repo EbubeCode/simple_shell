@@ -3,23 +3,32 @@
 /**
  * split_command - splits the commands entered
  * @command: the command to split
+ * @delim: delimeter
  *
  * Return: a null terminated array of strings
  */
-char **split_command(char *command)
+char **split_command(char *command, char *delim)
 {
 	char **args, *token;
-	int i = 0;
+	int i = 1, j;
 
-	args = malloc(sizeof(char *) * 10);
+	token = strtok(command, delim);
+	while (token != NULL)
+	{
+		token = strtok(NULL, delim);
+		i++;
+	}
+	args = malloc(sizeof(char *) * i);
 	if (args == NULL)
 		return (NULL);
-	token = strtok(command, " ");
-	while (token != NULL && i <= 10)
+	for (j = 0; j < i - 1; j++)
 	{
-		args[i++] = token;
-		token = strtok(NULL, " ");
+		args[j] = command;
+		while (*command != '\0')
+			command++;
+		if (j < (i - 2))
+			command++;
 	}
-
+	args[j] = NULL;
 	return (args);
 }

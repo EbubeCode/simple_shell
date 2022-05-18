@@ -10,15 +10,21 @@
 void execute(char **argv, char *progname)
 {
 	int status = 0, stat;
+	char *file;
 	pid_t child_pid;
 
 	status = access(argv[0], F_OK);
 	if (status == -1)
 	{
-		write(STDOUT_FILENO, progname, 8);
-		write(STDOUT_FILENO, ": No such file or directory\n",
-				30);
-		return;
+		file = search_path(argv[0]);
+		if (file == NULL)
+		{
+			write(STDOUT_FILENO, progname, 8);
+			write(STDOUT_FILENO, ": No such file or directory\n",
+					30);
+			return;
+		}
+		argv[0] = file;
 	}
 	child_pid = fork();
 	if (child_pid == -1)
@@ -59,9 +65,11 @@ int main(int ac, char *arv[])
 			while (*a != '\n')
 				a++;
 			*a = '\0';
-			av = split_command(prompt);
+			av = split_command(prompt, " ");
 			if (av != NULL)
+			{
 				execute(av, arv[0]);
+			}
 		}
 		else
 			write(STDOUT_FILENO, "\n", 1);
