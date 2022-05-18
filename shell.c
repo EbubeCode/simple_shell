@@ -47,7 +47,7 @@ void execute(char **argv, char *progname)
  *
  * Return: 0 sucess
  */
-int main(int ac, char *arv[])
+int main(__attribute__((unused)) int ac, char *arv[])
 {
 	char *prompt = NULL, *a, **av;
 	size_t n = 0;
