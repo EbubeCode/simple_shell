@@ -52,7 +52,7 @@ int main(int ac, char *arv[])
 	char *prompt = NULL, *a, **av;
 	size_t n = 0;
 	ssize_t read;
-	int i = 0, status;
+	int status = 0;
 
 	do {
 		write(STDOUT_FILENO, "#cisfun$ ", 9);
@@ -68,7 +68,11 @@ int main(int ac, char *arv[])
 			av = split_command(prompt, " ");
 			if (av != NULL)
 			{
-				execute(av, arv[0]);
+				status = handle_builtin(av);
+				if (status == 0)
+					execute(av, arv[0]);
+				else if (status == 1)
+					break;
 			}
 		}
 		else
@@ -78,6 +82,7 @@ int main(int ac, char *arv[])
 		free(av);
 	} while (1);
 	free(prompt);
-	write(STDOUT_FILENO, "\n", 1);
+	if (status != 1)
+		write(STDOUT_FILENO, "\n", 1);
 	return (0);
 }

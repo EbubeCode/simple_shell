@@ -33,7 +33,7 @@ char **get_path(void)
  *
  * Return: 1 on successfull match else 0
  */
-int comapare(char *f1, char *f2)
+int compare(char *f1, char *f2)
 {
 	int i, j = 0;
 
@@ -71,7 +71,7 @@ char *search_path(char *file)
 		{
 			if (entity->d_type != DT_REG)
 				continue;
-			if (comapare(entity->d_name, file))
+			if (compare(entity->d_name, file))
 			{
 				closedir(dir);
 				temp = str_concat("/", file);

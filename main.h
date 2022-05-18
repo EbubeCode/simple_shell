@@ -17,6 +17,10 @@ char **get_path(void);
 char *str_concat(char *s1, char *s2);
 char *search_path(char *file);
 char *_strdup(char *str);
+void print_env(void);
+int handle_builtin(char **av);
+int compare(char *f1, char *f2);
+
 
 #endif /* MAIN_H */
 
