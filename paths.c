@@ -27,7 +27,7 @@ char **get_path(void)
 }
 
 /**
- * comapare - compares the file name of files to if they are equall
+ * compare - compares the file name of files to if they are equall
  * @f1: first file
  * @f2: second file
  *
