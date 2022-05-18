@@ -55,7 +55,7 @@ int main(__attribute__((unused)) int ac, char *arv[])
 	int status = 0;
 
 	do {
-		write(STDOUT_FILENO, "#cisfun$ ", 9);
+		write(STDOUT_FILENO, "$ ", 2);
 		read = getline(&prompt, &n, stdin);
 		if (read == -1)
 			break;
