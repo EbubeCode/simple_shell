@@ -81,6 +81,7 @@ void handle_pipe(void)
 		while (args[i] != NULL)
 			execute(args[i++], NULL);
 	free(args);
+	free(cmds);
 }
 
 
