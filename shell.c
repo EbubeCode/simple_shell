@@ -54,13 +54,19 @@ int main(void)
 	char *prompt = NULL, *a = NULL, **av = NULL;
 	size_t n = 0;
 	ssize_t read;
-	int status = 0;
+	int status = 0, piped = 1;
 
 	do {
-		write(STDOUT_FILENO, "$ ", 2);
+		if (!isatty(STDIN_FILENO))
+			piped = 0;
+		else
+			write(STDOUT_FILENO, "$ ", 2);
 		read = getline(&prompt, &n, stdin);
 		if (read == -1)
+		{
+			write(STDOUT_FILENO, "\n", 1);
 			break;
+		}
 		if (prompt != NULL)
 		{
 			a = prompt;
@@ -74,11 +80,7 @@ int main(void)
 				if (status == 0)
 					execute(av);
 				else if (status == 1)
-				{
-					free(av);
-					free(prompt);
-					break;
-				}
+					piped = 0;
 			}
 		}
 		else
@@ -86,8 +88,6 @@ int main(void)
 		n = 0;
 		free(prompt);
 		free(av);
-	} while (1);
-	if (status != 1)
-		write(STDOUT_FILENO, "\n", 1);
+	} while (piped);
 	return (0);
 }
