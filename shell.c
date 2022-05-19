@@ -59,29 +59,35 @@ void execute(char *arg, char *argv[])
 void handle_pipe(void)
 {
 	char **args = NULL, *cmds = NULL, *a = NULL;
-	int i = 0;
+	int i, tr = 1;
 	size_t n = 0;
 	ssize_t read;
 
-	read = getline(&cmds, &n, stdin);
-	if (cmds != NULL && read != -1)
-	{
-
-		a = cmds;
-		while (*a != '\n')
-			a++;
-		*a = '\0';
-		args = split_command(cmds, " ");
-	}
-	if (args == NULL)
-		return;
-	if (args[1] != NULL && !compare(args[0], args[1]))
-		execute(args[0], args);
-	else
-		while (args[i] != NULL)
-			execute(args[i++], NULL);
-	free(args);
-	free(cmds);
+	do {
+		read = getline(&cmds, &n, stdin);
+		if (cmds != NULL && read != -1)
+		{
+			a = cmds;
+			while (*a != '\n')
+				a++;
+			*a = '\0';
+			args = split_command(cmds, " ");
+			if (args != NULL)
+			{
+				i = 0;
+				if (args[1] != NULL && !compare(args[0], args[1]))
+					execute(args[0], args);
+				else
+					while (args[i] != NULL)
+						execute(args[i++], NULL);
+				free(args);
+			}
+			n = 0;
+		}
+		else
+			tr = 0;
+		free(cmds);
+	} while (tr);
 }
 
 

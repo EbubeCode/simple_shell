@@ -29,7 +29,7 @@ char **split_command(char *command, char *delim)
 		if (j < (i - 2))
 		{
 			command++;
-			while (*command == ' ')
+			while (*command == ' ' || *command == '\n' || *command == '\t')
 				command++;
 		}
 	}
