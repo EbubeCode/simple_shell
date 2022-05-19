@@ -52,7 +52,7 @@ void execute(char **argv, char *progname)
  */
 int main(__attribute__((unused)) int ac, char *arv[])
 {
-	char *prompt = NULL, *a, **av;
+	char *prompt = NULL, *a = NULL, **av = NULL;
 	size_t n = 0;
 	ssize_t read;
 	int status = 0;
@@ -75,7 +75,11 @@ int main(__attribute__((unused)) int ac, char *arv[])
 				if (status == 0)
 					execute(av, arv[0]);
 				else if (status == 1)
+				{
+					free(av);
+					free(prompt);
 					break;
+				}
 			}
 		}
 		else
@@ -84,8 +88,6 @@ int main(__attribute__((unused)) int ac, char *arv[])
 		free(prompt);
 		free(av);
 	} while (1);
-	free(av);
-	free(prompt);
 	if (status != 1)
 		write(STDOUT_FILENO, "\n", 1);
 	return (0);
