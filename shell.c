@@ -16,7 +16,9 @@ void execute(char **argv)
 	if (status == -1)
 	{
 		file = search_path(argv[0]);
-		if (file == NULL)
+		if (file != NULL)
+			status = access(file, F_OK | X_OK);
+		if (file == NULL || status == -1)
 		{
 			perror("Error");
 			return;
