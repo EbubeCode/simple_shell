@@ -27,7 +27,11 @@ char **split_command(char *command, char *delim)
 		while (*command != '\0')
 			command++;
 		if (j < (i - 2))
+		{
 			command++;
+			while (*command == ' ')
+				command++;
+		}
 	}
 	args[j] = NULL;
 	return (args);
