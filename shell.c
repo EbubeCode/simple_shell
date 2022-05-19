@@ -31,7 +31,9 @@ void execute(char **argv)
 	}
 	if (child_pid == 0)
 	{
-		execve(argv[0], argv, NULL);
+		status = execve(argv[0], argv, NULL);
+		if (status == -1)
+			perror("Error");
 	}
 	else
 	{
