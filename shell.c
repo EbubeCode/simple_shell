@@ -50,7 +50,21 @@ void execute(char *arg, char *argv[])
 		free(file);
 	}
 }
+/**
+ * check_white : checks for only white space
+ * @str: the string
+ *
+ * Return: 1 if no whitspace 0 otherwise
+ */
+int check_white(char *str)
+{
+	int i;
 
+	for (i = 0; str[i] != '\n' && str[i] != '\0'; i++)
+		if (str[i] != ' ')
+			return (1);
+	return (0);
+}
 /**
  * handle_pipe - handle inputs from pipe
  *
@@ -65,7 +79,7 @@ void handle_pipe(void)
 
 	do {
 		read = getline(&cmds, &n, stdin);
-		if (cmds != NULL && read != -1)
+		if (cmds != NULL && read != -1 && check_white(cmds))
 		{
 			a = cmds;
 			while (*a != '\n')
