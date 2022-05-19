@@ -84,5 +84,7 @@ char *search_path(char *file)
 		closedir(dir);
 
 	}
+	free(a);
+	free(args);
 	return (NULL);
 }

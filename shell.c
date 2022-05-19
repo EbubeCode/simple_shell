@@ -21,6 +21,7 @@ void execute(char *arg, char *argv[])
 			status = access(file, F_OK | X_OK);
 		if (file == NULL || status == -1)
 		{
+			free(file);
 			perror("Error");
 			return;
 		}
