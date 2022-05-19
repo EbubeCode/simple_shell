@@ -9,7 +9,7 @@
 void execute(char **argv)
 {
 	int status = 0, stat;
-	char *file;
+	char *file = NULL;
 	pid_t child_pid;
 
 	status = access(argv[0], F_OK | X_OK);
@@ -64,6 +64,7 @@ int main(void)
 		read = getline(&prompt, &n, stdin);
 		if (read == -1)
 		{
+			free(prompt);
 			write(STDOUT_FILENO, "\n", 1);
 			break;
 		}

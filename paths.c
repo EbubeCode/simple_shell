@@ -3,11 +3,11 @@
 /**
  * get_path - gets an array of the directories in path variable
  *
- * Return: array of directories in PATH
+ * Return: duplicate of  PATH
  */
-char **get_path(void)
+char *get_path(void)
 {
-	char *a, **args;
+	char *a;
 	int i = 0;
 
 	while (environ[i])
@@ -16,14 +16,12 @@ char **get_path(void)
 		if (*a == 'P' && a[1] == 'A' && a[2] == 'T' && a[3] == 'H')
 		{
 			a += 5;
-			a = _strdup(a);
-			args = split_command(a, ":");
-			break;
+			return (_strdup(a));
 		}
 		else
 			i++;
 	}
-	return (args);
+	return (NULL);
 }
 
 /**
@@ -55,13 +53,14 @@ int compare(char *f1, char *f2)
  */
 char *search_path(char *file)
 {
-	char **args;
+	char **args, *a;
 	DIR *dir;
 	struct dirent *entity;
 	char *temp;
 	int i;
 
-	args = get_path();
+	a = get_path();
+	args = split_command(a, ":");
 	for (i = 0; args[i] != NULL; i++)
 	{
 		dir = opendir(args[i]);
@@ -76,9 +75,9 @@ char *search_path(char *file)
 				closedir(dir);
 				temp = str_concat("/", file);
 				file = str_concat(args[i], temp);
-				free(args[0]);
-				free(args);
+				free(a);
 				free(temp);
+				free(args);
 				return (file);
 			}
 		}
