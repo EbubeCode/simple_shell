@@ -43,12 +43,10 @@ void execute(char **argv)
 
 /**
  * main - Entry point of application
- * @ac: number of commandline args
- * @arv: array of command line
  *
  * Return: 0 sucess
  */
-int main()
+int main(void)
 {
 	char *prompt = NULL, *a = NULL, **av = NULL;
 	size_t n = 0;
