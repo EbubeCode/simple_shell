@@ -2,20 +2,21 @@
 
 /**
  * execute - executes a program passed to it
+ * @arg: the command
  * @argv: the string of command and parameters
  *
  * Return: void
  */
-void execute(char **argv)
+void execute(char *arg, char *argv[])
 {
 	int status = 0, stat;
-	char *file = NULL;
+	char *file = NULL, *def[2];
 	pid_t child_pid;
 
-	status = access(argv[0], F_OK | X_OK);
+	status = access(arg, F_OK | X_OK);
 	if (status == -1)
 	{
-		file = search_path(argv[0]);
+		file = search_path(arg);
 		if (file != NULL)
 			status = access(file, F_OK | X_OK);
 		if (file == NULL || status == -1)
@@ -23,7 +24,7 @@ void execute(char **argv)
 			perror("Error");
 			return;
 		}
-		argv[0] = file;
+		arg = file;
 	}
 	child_pid = fork();
 	if (child_pid == -1)
@@ -33,9 +34,14 @@ void execute(char **argv)
 	}
 	if (child_pid == 0)
 	{
-		status = execve(argv[0], argv, NULL);
-		if (status == -1)
-			perror("Error");
+		if (argv == NULL)
+		{
+			def[0] = arg;
+			def[1] = NULL;
+			argv = def;
+		}
+		execve(arg, argv, NULL);
+		perror("Error");
 	}
 	else
 	{
@@ -43,6 +49,39 @@ void execute(char **argv)
 		free(file);
 	}
 }
+
+/**
+ * handle_pipe - handle inputs from pipe
+ *
+ * Retun: void
+ */
+void handle_pipe(void)
+{
+	char **args = NULL, *cmds = NULL, *a = NULL;
+	int i = 0;
+	size_t n = 0;
+	ssize_t read;
+
+	read = getline(&cmds, &n, stdin);
+	if (cmds != NULL && read != -1)
+	{
+
+		a = cmds;
+		while (*a != '\n')
+			a++;
+		*a = '\0';
+		args = split_command(cmds, " ");
+	}
+	if (args == NULL)
+		return;
+	if (args[1] != NULL && !compare(args[0], args[1]))
+		execute(args[0], args);
+	else
+		while (args[i] != NULL)
+			execute(args[i++], NULL);
+	free(args);
+}
+
 
 /**
  * main - Entry point of application
@@ -57,38 +96,38 @@ int main(void)
 	int status = 0, piped = 1;
 
 	do {
-		if (!isatty(STDIN_FILENO))
-			piped = 0;
-		else
+		if (isatty(STDIN_FILENO))
+		{
 			write(STDOUT_FILENO, "$ ", 2);
-		read = getline(&prompt, &n, stdin);
-		if (read == -1)
-		{
-			free(prompt);
-			write(STDOUT_FILENO, "\n", 1);
-			break;
-		}
-		if (prompt != NULL)
-		{
-			a = prompt;
-			while (*a != '\n')
-				a++;
-			*a = '\0';
-			av = split_command(prompt, " ");
-			if (av != NULL)
+			read = getline(&prompt, &n, stdin);
+			if (prompt != NULL && read != -1)
 			{
-				status = handle_builtin(av);
-				if (status == 0)
-					execute(av);
-				else if (status == 1)
-					piped = 0;
+				piped = 0;
+				a = prompt;
+				while (*a != '\n')
+					a++;
+				*a = '\0';
+				av = split_command(prompt, " ");
+				if (av != NULL)
+				{
+					status = handle_builtin(av);
+					if (status == 0)
+						execute(av[0], av);
+					else if (status == 1)
+						piped = 1;
+				}
 			}
+			else
+				write(STDOUT_FILENO, "\n", 1);
+			n = 0;
+			free(prompt);
+			if (read != -1)
+				free(av);
+			else
+				piped = 1;
 		}
 		else
-			write(STDOUT_FILENO, "\n", 1);
-		n = 0;
-		free(prompt);
-		free(av);
-	} while (piped);
+			handle_pipe();
+	} while (!piped);
 	return (0);
 }
