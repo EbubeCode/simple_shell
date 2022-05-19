@@ -3,11 +3,10 @@
 /**
  * execute - executes a program passed to it
  * @argv: the string of command and parameters
- * @progname: program name
  *
  * Return: void
  */
-void execute(char **argv, char *progname)
+void execute(char **argv)
 {
 	int status = 0, stat;
 	char *file;
@@ -19,9 +18,8 @@ void execute(char **argv, char *progname)
 		file = search_path(argv[0]);
 		if (file == NULL)
 		{
-			write(STDOUT_FILENO, progname, 8);
-			write(STDOUT_FILENO, ": No such file or directory\n",
-					30);
+			write(STDERR_FILENO, "./shell : No such file or directory\n",
+					40);
 			return;
 		}
 		argv[0] = file;
@@ -29,7 +27,7 @@ void execute(char **argv, char *progname)
 	child_pid = fork();
 	if (child_pid == -1)
 	{
-		perror("Error: running command\n");
+		perror("Error");
 		return;
 	}
 	if (child_pid == 0)
@@ -50,7 +48,7 @@ void execute(char **argv, char *progname)
  *
  * Return: 0 sucess
  */
-int main(__attribute__((unused)) int ac, char *arv[])
+int main()
 {
 	char *prompt = NULL, *a = NULL, **av = NULL;
 	size_t n = 0;
@@ -73,7 +71,7 @@ int main(__attribute__((unused)) int ac, char *arv[])
 			{
 				status = handle_builtin(av);
 				if (status == 0)
-					execute(av, arv[0]);
+					execute(av);
 				else if (status == 1)
 				{
 					free(av);
