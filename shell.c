@@ -12,14 +12,13 @@ void execute(char **argv)
 	char *file;
 	pid_t child_pid;
 
-	status = access(argv[0], F_OK);
+	status = access(argv[0], F_OK | X_OK);
 	if (status == -1)
 	{
 		file = search_path(argv[0]);
 		if (file == NULL)
 		{
-			write(STDERR_FILENO, "./shell : No such file or directory\n",
-					40);
+			perror("Error");
 			return;
 		}
 		argv[0] = file;
