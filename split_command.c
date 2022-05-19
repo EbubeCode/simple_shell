@@ -9,7 +9,7 @@
  */
 char **split_command(char *command, char *delim)
 {
-	char **args, *token;
+	char **args, *token, *a;
 	int i = 1, j;
 
 	token = strtok(command, delim);
@@ -23,14 +23,22 @@ char **split_command(char *command, char *delim)
 		return (NULL);
 	for (j = 0; j < i - 1; j++)
 	{
-		args[j] = command;
+		a = command;
 		while (*command != '\0')
 			command++;
 		if (j < (i - 2))
 		{
 			command++;
-			while (*command == ' ' || *command == '\n' || *command == '\t')
+			while (*command == ' ')
 				command++;
+		}
+		if (*a != ' ')
+			args[j] = a;
+		else
+		{
+			while (*a == ' ')
+				a++;
+			args[j] = a;
 		}
 	}
 	args[j] = NULL;
