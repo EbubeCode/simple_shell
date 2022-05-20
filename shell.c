@@ -79,22 +79,25 @@ void handle_pipe(void)
 
 	do {
 		read = getline(&cmds, &n, stdin);
-		if (cmds != NULL && read != -1 && check_white(cmds))
+		if (cmds != NULL && read != -1)
 		{
-			a = cmds;
-			while (*a != '\n')
-				a++;
-			*a = '\0';
-			args = split_command(cmds, " ");
-			if (args != NULL)
+			if (check_white(cmds))
 			{
-				i = 0;
-				if (args[1] != NULL && !compare(args[0], args[1]))
-					execute(args[0], args);
-				else
-					while (args[i] != NULL)
-						execute(args[i++], NULL);
-				free(args);
+				a = cmds;
+				while (*a != '\n')
+					a++;
+				*a = '\0';
+				args = split_command(cmds, " ");
+				if (args != NULL)
+				{
+					i = 0;
+					if (args[1] != NULL && !compare(args[0], args[1]))
+						execute(args[0], args);
+					else
+						while (args[i] != NULL)
+							execute(args[i++], NULL);
+					free(args);
+				}
 			}
 			n = 0;
 		}
