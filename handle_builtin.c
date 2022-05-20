@@ -27,7 +27,7 @@ void print_env(void)
  * handle_builtin - checks if the command is the builtin commands
  * @av: commands entered
  *
- * Return: 1 if exit, 2 cd, 3 env, else 0
+ * Return: 1 if exit , 2 cd & env, else 0
  */
 int handle_builtin(char **av)
 {
@@ -36,7 +36,7 @@ int handle_builtin(char **av)
 	if (compare(av[0], "env"))
 	{
 		print_env();
-		return (3);
+		return (2);
 	}
 	if (compare(av[0], "cd"))
 	{

@@ -111,8 +111,10 @@ void handle_pipe(void)
 				if (args != NULL)
 				{
 					status = handle_builtin(args);
-					if (status == 0)
+					if (!status)
 						status = execute(args[0], args);
+					else if (status == 2)
+						status = 0;
 					free(args);
 				}
 			}
