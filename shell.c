@@ -5,11 +5,11 @@
  * @arg: the command
  * @argv: the string of command and parameters
  *
- * Return: void
+ * Return: 0 if no error
  */
-void execute(char *arg, char *argv[])
+int execute(char *arg, char *argv[])
 {
-	int status = 0, stat;
+	int status = 0, i, stat;
 	char *file = NULL, *def[2];
 	pid_t child_pid;
 
@@ -21,9 +21,13 @@ void execute(char *arg, char *argv[])
 			status = access(file, F_OK | X_OK);
 		if (file == NULL || status == -1)
 		{
+			for (i = 0; arg[i] != '\0'; i++);
+
 			free(file);
-			perror("Error");
-			return;
+			write(STDERR_FILENO, "./hsh: 1: ", 10);
+			write(STDERR_FILENO, arg, i);
+			write(STDERR_FILENO, ": not found\n", 12);
+			return (127);
 		}
 		arg = file;
 	}
@@ -31,7 +35,6 @@ void execute(char *arg, char *argv[])
 	if (child_pid == -1)
 	{
 		perror("Error");
-		return;
 	}
 	if (child_pid == 0)
 	{
@@ -43,11 +46,13 @@ void execute(char *arg, char *argv[])
 		}
 		execve(arg, argv, NULL);
 		perror("Error");
+		return (1);
 	}
 	else
 	{
 		wait(&stat);
 		free(file);
+		return (0);
 	}
 }
 /**
@@ -73,7 +78,7 @@ int check_white(char *str)
 void handle_pipe(void)
 {
 	char **args = NULL, *cmds = NULL, *a = NULL;
-	int i, tr = 1;
+	int i, tr = 1, status = 0;
 	size_t n = 0;
 	ssize_t read;
 
@@ -92,10 +97,10 @@ void handle_pipe(void)
 				{
 					i = 0;
 					if (args[1] != NULL && !compare(args[0], args[1]))
-						execute(args[0], args);
+						status = execute(args[0], args);
 					else
 						while (args[i] != NULL)
-							execute(args[i++], NULL);
+							status = execute(args[i++], NULL);
 					free(args);
 				}
 			}
@@ -104,7 +109,9 @@ void handle_pipe(void)
 		else
 			tr = 0;
 		free(cmds);
-	} while (tr);
+	} while (tr && !status);
+	if (status != 0)
+		exit(status);
 }
 
 
