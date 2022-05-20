@@ -1,6 +1,26 @@
 #include "main.h"
 
 /**
+ * print_error - prints and returns error code
+ * @arg: argument to print
+ * @file: argument to free
+ *
+ * Return: error code
+ */
+int print_error(char *arg, char *file)
+{
+	int i;
+
+	for (i = 0; arg[i] != '\0'; i++)
+		;
+	write(STDERR_FILENO, "./hsh: 1: ", 10);
+	write(STDERR_FILENO, arg, i);
+	write(STDERR_FILENO, ": not found\n", 12);
+	free(file);
+	return (127);
+}
+
+/**
  * execute - executes a program passed to it
  * @arg: the command
  * @argv: the string of command and parameters
@@ -9,7 +29,7 @@
  */
 int execute(char *arg, char *argv[])
 {
-	int status = -1, i, stat;
+	int status = -1, stat;
 	char *file = NULL, *def[2];
 	pid_t child_pid;
 
@@ -21,21 +41,14 @@ int execute(char *arg, char *argv[])
 		if (file != NULL)
 			status = access(file, F_OK | X_OK);
 		if (file == NULL || status == -1)
-		{
-			for (i = 0; arg[i] != '\0'; i++);
-
-			free(file);
-			write(STDERR_FILENO, "./hsh: 1: ", 10);
-			write(STDERR_FILENO, arg, i);
-			write(STDERR_FILENO, ": not found\n", 12);
-			return (127);
-		}
+			return (print_error(arg, file));
 		arg = file;
 	}
 	child_pid = fork();
 	if (child_pid == -1)
 	{
-		perror("Error");
+		perror("Error:");
+		return (127);
 	}
 	if (child_pid == 0)
 	{
@@ -47,13 +60,14 @@ int execute(char *arg, char *argv[])
 		}
 		execve(arg, argv, NULL);
 		perror("Error");
-		return (1);
+		exit (2);
 	}
 	else
 	{
-		wait(&stat);
+		waitpid(child_pid, &stat, 0);
 		free(file);
-		return (0);
+		stat = WEXITSTATUS(stat);
+		return (stat);
 	}
 }
 /**
@@ -79,7 +93,7 @@ int check_white(char *str)
 void handle_pipe(void)
 {
 	char **args = NULL, *cmds = NULL, *a = NULL;
-	int i, tr = 1, status = 0;
+	int tr = 1, status = 0;
 	size_t n = 0;
 	ssize_t read;
 
@@ -96,12 +110,9 @@ void handle_pipe(void)
 				args = split_command(cmds, " ");
 				if (args != NULL)
 				{
-					i = 0;
-					if (args[1] != NULL && !compare(args[0], args[1]))
+					status = handle_builtin(args);
+					if (status == 0)
 						status = execute(args[0], args);
-					else
-						while (args[i] != NULL)
-							status = execute(args[i++], NULL);
 					free(args);
 				}
 			}
@@ -111,7 +122,7 @@ void handle_pipe(void)
 			tr = 0;
 		free(cmds);
 	} while (tr && !status);
-	if (status != 0)
+	if (status != 0 && status != 1)
 		exit(status);
 }
 
