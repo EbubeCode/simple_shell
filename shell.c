@@ -60,7 +60,7 @@ int execute(char *arg, char *argv[])
 		}
 		execve(arg, argv, NULL);
 		perror("Error");
-		exit (2);
+		exit(2);
 	}
 	else
 	{
@@ -71,7 +71,7 @@ int execute(char *arg, char *argv[])
 	}
 }
 /**
- * check_white : checks for only white space
+ * check_white - checks for only white space
  * @str: the string
  *
  * Return: 1 if no whitspace 0 otherwise
