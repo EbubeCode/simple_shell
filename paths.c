@@ -13,7 +13,7 @@ char *get_path(void)
 	while (environ[i])
 	{
 		a = environ[i];
-		if (*a == 'P' && a[1] == 'A' && a[2] == 'T' && a[3] == 'H')
+		if (*a == 'P' && a[1] == 'A' && a[2] == 'T' && a[3] == 'H' && a[4] == '=')
 		{
 			a += 5;
 			return (_strdup(a));
@@ -60,31 +60,34 @@ char *search_path(char *file)
 	int i;
 
 	a = get_path();
-	args = split_command(a, ":");
-	for (i = 0; args[i] != NULL; i++)
+	if (a != NULL)
 	{
-		dir = opendir(args[i]);
-		if (dir == NULL)
-			continue;
-		while ((entity = readdir(dir)) != NULL)
+		args = split_command(a, ":");
+		for (i = 0; args[i] != NULL; i++)
 		{
-			if (entity->d_type != DT_REG)
+			dir = opendir(args[i]);
+			if (dir == NULL)
 				continue;
-			if (compare(entity->d_name, file))
+			while ((entity = readdir(dir)) != NULL)
 			{
-				closedir(dir);
-				temp = str_concat("/", file);
-				file = str_concat(args[i], temp);
-				free(a);
-				free(temp);
-				free(args);
-				return (file);
+				if (entity->d_type != DT_REG)
+					continue;
+				if (compare(entity->d_name, file))
+				{
+					closedir(dir);
+					temp = str_concat("/", file);
+					file = str_concat(args[i], temp);
+					free(a);
+					free(temp);
+					free(args);
+					return (file);
+				}
 			}
-		}
-		closedir(dir);
+			closedir(dir);
 
+		}
+		free(a);
+		free(args);
 	}
-	free(a);
-	free(args);
 	return (NULL);
 }

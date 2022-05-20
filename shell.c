@@ -9,11 +9,12 @@
  */
 int execute(char *arg, char *argv[])
 {
-	int status = 0, i, stat;
+	int status = -1, i, stat;
 	char *file = NULL, *def[2];
 	pid_t child_pid;
 
-	status = access(arg, F_OK | X_OK);
+	if (*arg == '.' || *arg == '/')
+		status = access(arg, F_OK | X_OK);
 	if (status == -1)
 	{
 		file = search_path(arg);
